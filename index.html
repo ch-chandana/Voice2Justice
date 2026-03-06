@@ -1589,76 +1589,62 @@
                 processingState.style.display = 'none';
                 outputResult.style.display = 'none';
             });
+
             processBtn.addEventListener('click', async () => {
-
                 const text = demoInput.value.trim();
-
-                if (!text) {
-                    alert("Please describe an incident first.");
-                    return;
-                }
+                if (!text) { alert("Please describe an incident first."); return; }
 
                 outputPlaceholder.style.display = 'none';
                 outputResult.style.display = 'none';
+
+                const locRegex = /(street|road|cross|layout|nagar|colony|block|market|area|park|junction|circle|highway|avenue|sector|phase|st\.|rd\.)/i;
+                let gpsLocation = "";
+
+                if (!locRegex.test(text)) {
+                    alert("Location is missing! Please mention a specific location in your complaint (e.g., Street, Road, Area, Colony).");
+                    outputPlaceholder.style.display = 'flex';
+                    return; // Stop submission and wait for user to add location
+                }
 
                 processingState.style.display = 'flex';
                 processingText.innerText = "Connecting to Flask Agent API...";
 
                 try {
-
                     const response = await fetch('/api/process', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            text: text,
-                            location: text
-                        })
+                        body: JSON.stringify({ text: text, location: gpsLocation })
                     });
 
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.message || "Server error");
+                    }
+
                     const data = await response.json();
-
-                    const steps = data.steps || ["Processing complaint..."];
-
+                    const steps = data.steps || ["Processing..."];
                     let i = 0;
-
                     const interval = setInterval(() => {
-
                         if (i < steps.length) {
-
                             processingText.innerText = steps[i];
                             i++;
-
                         } else {
-
                             clearInterval(interval);
-
                             processingState.style.display = 'none';
-
-                            if (data.html) {
-                                outputResult.innerHTML = data.html;
-                            } else {
-                                outputResult.innerHTML =
-                                    "<div style='padding:1rem'>Complaint processed successfully.</div>";
-                            }
-
+                            outputResult.innerHTML = data.html;
                             outputResult.style.display = 'flex';
                         }
-
-                    }, 600);
+                    }, 500);
 
                 } catch (error) {
-
-                    console.error(error);
-
+                    console.error('Error:', error);
                     processingState.style.display = 'none';
-
-                    outputResult.innerHTML =
-                        "<div style='color:red;padding:1rem'>Server connection failed.</div>";
-
+                    const errorMsg = error.message && error.message.includes('Location') ? error.message : "Connection Error. Ensure Flask is running: python app.py";
+                    outputResult.innerHTML = `<div style="color:#ef4444;padding:1rem"><i class="fa-solid fa-triangle-exclamation"></i> ${errorMsg}</div>`;
                     outputResult.style.display = 'flex';
                 }
-
             });
+        });
     </script>
 
     <script>
