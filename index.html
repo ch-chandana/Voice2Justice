@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice2Justice | Citizen Complaint Intelligence</title>
+    <meta name="description" content="A Citizen Complaint Intelligence & Governance Routing Platform.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #ffffff;
+            --bg-darker: #f4f6fb;
+            --bg-card: rgba(255, 255, 255, .9);
+            --border-light: rgba(0, 0, 0, .08);
+            --primary: #4f46e5;
+            --primary-light: #6366f1;
+            --secondary: #0ea5e9;
+            --accent: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --gradient-main: linear-gradient(135deg, #4f46e5 0%, #0ea5e9 100%);
+            --gradient-text: linear-gradient(to right, #4f46e5, #0ea5e9);
+            --glass-bg: rgba(255, 255, 255, .85);
+            --glass-border: rgba(0, 0, 0, .06);
+            --glass-blur: blur(14px)
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-dark)
+        }
+
+        body {
+            overflow-x: hidden;
+            line-height: 1.6
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .brand {
+            font-family: 'Outfit', sans-serif
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, .15) 0%, rgba(10, 10, 15, 0) 70%);
+            top: -200px;
+            left: -200px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1
+        }
+
+        .bg-glow-2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(37, 99, 235, .1) 0%, rgba(10, 10, 15, 0) 70%);
+            bottom: -100px;
+            right: -100px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem
+        }
+
+        .text-gradient {
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 4rem auto
+        }
+
+        section {
+            padding: 8rem 0
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.5rem 0;
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 100;
+            transition: all .3s ease
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: .5rem
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-main);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: .95rem;
+            font-weight: 500;
+            transition: color .3s ease
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-light)
+        }
+
+        .btn {
+            padding: .75rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all .3s ease;
+            cursor: pointer;
+            border: none;
+            font-family: inherit;
+            font-size: .95rem
+        }
+
+        .btn-primary {
+            background: var(--gradient-main);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(109, 40, 217, .3)
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(109, 40, 217, .5)
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-main)
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-light);
+            background: rgba(139, 92, 246, .1)
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding-top: 5rem;
+            position: relative
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        .badge {
+            display: inline-block;
+            padding: .5rem 1rem;
+            background: rgba(139, 92, 246, .1);
+            border: 1px solid rgba(139, 92, 246, .2);
+            border-radius: 20px;
+            color: var(--primary-light);
+            font-size: .85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 2rem
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center
+        }
+
+        .problem-grid,
+        .solution-grid,
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: all .4s ease;
+            position: relative;
+            overflow: hidden
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, 0) 100%);
+            opacity: 0;
+            transition: opacity .4s ease
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, .2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .4)
+        }
+
+        .card:hover::before {
+            opacity: 1
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, .05)
+        }
+
+        .icon-red {
+            background: rgba(239, 68, 68, .1);
+            color: #ef4444
+        }
+
+        .icon-purple {
+            background: rgba(139, 92, 246, .1);
+            color: #a78bfa
+        }
+
+        .icon-green {
+            background: rgba(16, 185, 129, .1);
+            color: #34d399
+        }
+
+        .icon-blue {
+            background: rgba(59, 130, 246, .1);
+            color: #60a5fa
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem
+        }
+
+        .card p {
+            color: var(--text-muted)
+        }
+
+        .card ul {
+            list-style-type: none;
+            margin-top: 1rem
+        }
+
+        .card ul li {
+            margin-bottom: .5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: .5rem;
+            color: var(--text-muted)
+        }
+
+        .bridge-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin: 4rem 0;
+            flex-wrap: wrap
+        }
+
+        .bridge-node {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            width: 250px;
+            position: relative
+        }
+
+        .bridge-node h3 {
+            margin-bottom: .5rem
+        }
+
+        .bridge-gap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem
+        }
+
+        .gap-line {
+            height: 4px;
+            width: 100px;
+            background: rgba(255, 255, 255, .1);
+            position: relative;
+            overflow: hidden
+        }
+
+        .gap-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-main);
+            animation: slideRight 3s infinite ease-in-out
+        }
+
+        @keyframes slideRight {
+            0% {
+                left: -100%
+            }
+
+            50% {
+                left: 0
+            }
+
+            100% {
+                left: 100%
+            }
+        }
+
+        .pipeline {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4rem;
+            position: relative;
+            overflow-x: auto;
+            padding-bottom: 2rem
+        }
+
+        .pipeline::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: var(--border-light);
+            z-index: 0
+        }
+
+        .pipeline::after {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 5%;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-main);
+            z-index: 1;
+            transition: width 1s ease;
+            box-shadow: 0 0 10px var(--primary)
+        }
+
+        .pipeline.animated::after {
+            width: 90%
+        }
+
+        .pipeline-step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 150px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .5s ease
+        }
+
+        .pipeline.animated .pipeline-step {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .pipeline.animated .pipeline-step:nth-child(1) {
+            transition-delay: .2s
+        }
+
+        .pipeline.animated .pipeline-step:nth-child(2) {
+            transition-delay: .4s
+        }
+
+        .pipeline.animated .pipeline-step:nth-child(3) {
+            transition-delay: .6s
+        }
+
+        .pipeline.animated .pipeline-step:nth-child(4) {
+            transition-delay: .8s
+        }
+
+        .pipeline.animated .pipeline-step:nth-child(5) {
+            transition-delay: 1s
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-darker);
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all .3s ease
+        }
+
+        .pipeline.animated .pipeline-step:hover .step-icon {
+            background: var(--primary);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 20px rgba(139, 92, 246, .4);
+            transform: scale(1.1)
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: .25rem
+        }
+
+        .step-desc {
+            font-size: .85rem;
+            color: var(--text-muted)
+        }
+
+        .demo-section {
+            background: var(--bg-darker);
+            position: relative;
+            border-top: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--border-light)
+        }
+
+        .demo-container {
+            display: flex;
+            gap: 3rem;
+            margin-top: 3rem;
+            align-items: flex-start
+        }
+
+        .demo-input-card,
+        .demo-output-card {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, .5)
+        }
+
+        .demo-header {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, .02);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .mac-dots {
+            display: flex;
+            gap: 6px
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%
+        }
+
+        .dot:nth-child(1) {
+            background: #ff5f56
+        }
+
+        .dot:nth-child(2) {
+            background: #ffbd2e
+        }
+
+        .dot:nth-child(3) {
+            background: #27c93f
+        }
+
+        .demo-body {
+            padding: 2rem;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column
+        }
+
+        .demo-textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1rem;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: none;
+            margin-bottom: 1.5rem;
+            transition: all .3s
+        }
+
+        .demo-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(139, 92, 246, .05)
+        }
+
+        .demo-suggestions {
+            display: flex;
+            gap: .5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap
+        }
+
+        .suggestion {
+            padding: .4rem .8rem;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            font-size: .8rem;
+            cursor: pointer;
+            transition: all .2s;
+            color: var(--text-main)
+        }
+
+        .suggestion:hover {
+            background: rgba(255, 255, 255, .1)
+        }
+
+        .output-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-muted);
+            flex: 1
+        }
+
+        .output-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: .5
+        }
+
+        .processing-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(139, 92, 246, .3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+            margin-bottom: 1rem
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        .output-result {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            animation: fadeIn .5s ease
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 1.5rem
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: .5rem;
+            border-bottom: 1px solid var(--border-light);
+            flex-wrap: wrap;
+            gap: .5rem
+        }
+
+        .result-tag {
+            padding: .2rem .6rem;
+            border-radius: 12px;
+            font-size: .75rem;
+            font-weight: 600;
+            text-transform: uppercase
+        }
+
+        .tag-crime {
+            background: rgba(239, 68, 68, .2);
+            color: #fca5a5
+        }
+
+        .tag-civic {
+            background: rgba(59, 130, 246, .2);
+            color: #93c5fd
+        }
+
+        .result-row {
+            display: flex;
+            margin-bottom: .5rem
+        }
+
+        .result-label {
+            width: 120px;
+            color: var(--text-muted);
+            font-size: .85rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            flex-shrink: 0
+        }
+
+        .result-value {
+            flex: 1;
+            font-weight: 500
+        }
+
+        footer {
+            background: var(--bg-darker);
+            padding: 4rem 0 2rem;
+            border-top: 1px solid var(--border-light);
+            text-align: center
+        }
+
+        .footer-content {
+            margin-bottom: 2rem
+        }
+
+        .copyright {
+            color: var(--text-muted);
+            font-size: .9rem
+        }
+
+        .fade-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity .8s ease, transform .8s ease
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        @media(max-width:900px) {
+            .hero h1 {
+                font-size: 3.5rem
+            }
+
+            .demo-container {
+                flex-direction: column
+            }
+
+            .pipeline {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2rem;
+                padding-left: 2rem
+            }
+
+            .pipeline::before {
+                top: 0;
+                left: 40px;
+                width: 2px;
+                height: 100%
+            }
+
+            .pipeline::after {
+                top: 0;
+                left: 40px;
+                width: 2px;
+                height: 0;
+                transition: height 1s ease
+            }
+
+            .pipeline.animated::after {
+                width: 2px;
+                height: 90%
+            }
+
+            .pipeline-step {
+                flex-direction: row;
+                text-align: left;
+                width: 100%;
+                gap: 1.5rem
+            }
+
+            .step-icon {
+                margin-bottom: 0;
+                width: 60px;
+                height: 60px;
+                z-index: 10;
+                background: var(--bg-dark)
+            }
+        }
+
+        @media(max-width:600px) {
+            .hero h1 {
+                font-size: 2.5rem
+            }
+
+            .section-title {
+                font-size: 2rem
+            }
+
+            .nav-links {
+                display: none
+            }
+        }
+
+        /* Animated Background */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-glow {
+            animation: floatGlow1 8s ease-in-out infinite alternate;
+        }
+
+        .bg-glow-2 {
+            animation: floatGlow2 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatGlow1 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(80px, 60px) scale(1.2);
+            }
+        }
+
+        @keyframes floatGlow2 {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(-60px, -40px) scale(1.15);
+            }
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8f4f8 30%, #faf5ff 60%, #f0f9ff 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 12s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        nav,
+        section,
+        footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== MORE ANIMATIONS ===== */
+
+        /* Shimmer sweep on gradient text */
+        .text-gradient {
+            background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 0% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        /* Pulse glow on card icons */
+        .card-icon {
+            animation: iconPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes iconPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+            }
+
+            50% {
+                box-shadow: 0 0 20px 4px rgba(79, 70, 229, 0.12);
+            }
+        }
+
+        /* 3D tilt on cards */
+        .card {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            transition: all 0.4s ease, transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px) rotateX(2deg) rotateY(-2deg);
+            box-shadow: 0 25px 50px rgba(79, 70, 229, 0.08), 0 10px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Ripple effect on buttons */
+        .btn {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+            opacity: 1;
+            transition: 0s;
+        }
+
+        /* Badge bounce entrance */
+        .badge {
+            animation: bounceIn 1s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.3) translateY(-30px);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05) translateY(0);
+            }
+
+            70% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Hero H1 slide up entrance */
+        .hero h1 {
+            animation: slideUp 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Hero paragraph fade in */
+        .hero p {
+            animation: slideUp 0.8s ease-out 0.6s both;
+        }
+
+        /* CTA buttons stagger */
+        .hero-cta {
+            animation: slideUp 0.8s ease-out 0.9s both;
+        }
+
+        /* Typing cursor */
+        .typing-cursor {
+            display: inline-block;
+            width: 3px;
+            height: 1em;
+            background: var(--primary);
+            margin-left: 4px;
+            animation: blink 0.8s step-end infinite;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Floating geometric shapes */
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .shape {
+            position: absolute;
+            border: 2px solid rgba(79, 70, 229, 0.08);
+            border-radius: 12px;
+            animation: floatShape 15s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 60px;
+            height: 60px;
+            top: 15%;
+            left: 8%;
+            animation-delay: 0s;
+            animation-duration: 18s;
+            transform: rotate(45deg);
+        }
+
+        .shape:nth-child(2) {
+            width: 40px;
+            height: 40px;
+            top: 70%;
+            left: 85%;
+            animation-delay: 2s;
+            animation-duration: 14s;
+            border-radius: 50%;
+            border-color: rgba(14, 165, 233, 0.08);
+        }
+
+        .shape:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            top: 40%;
+            left: 90%;
+            animation-delay: 4s;
+            animation-duration: 20s;
+            transform: rotate(20deg);
+        }
+
+        .shape:nth-child(4) {
+            width: 30px;
+            height: 30px;
+            top: 80%;
+            left: 15%;
+            animation-delay: 1s;
+            animation-duration: 12s;
+            border-radius: 50%;
+            border-color: rgba(16, 185, 129, 0.1);
+        }
+
+        .shape:nth-child(5) {
+            width: 50px;
+            height: 50px;
+            top: 25%;
+            left: 75%;
+            animation-delay: 3s;
+            animation-duration: 16s;
+            transform: rotate(-15deg);
+        }
+
+        @keyframes floatShape {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.5;
+            }
+
+            25% {
+                transform: translateY(-30px) rotate(90deg);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(180deg);
+                opacity: 0.7;
+            }
+
+            75% {
+                transform: translateY(-40px) rotate(270deg);
+                opacity: 1;
+            }
+        }
+
+        /* Step icons bounce on hover */
+        .step-icon {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .pipeline.animated .pipeline-step:hover .step-icon {
+            animation: iconBounce 0.5s ease;
+        }
+
+        @keyframes iconBounce {
+            0% {
+                transform: scale(1);
+            }
+
+            30% {
+                transform: scale(1.25);
+            }
+
+            50% {
+                transform: scale(0.95);
+            }
+
+            70% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        /* Suggestion chips hover bounce */
+        .suggestion {
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .suggestion:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Nav links underline animation */
+        .nav-links a {
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-main);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Logo icon spin on hover */
+        .logo:hover .logo-icon {
+            animation: logoSpin 0.6s ease;
+        }
+
+        @keyframes logoSpin {
+            0% {
+                transform: rotateY(0);
+            }
+
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        /* Result card slide in */
+        .result-card {
+            animation: resultSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes resultSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Spinner enhanced */
+        .spinner {
+            border-width: 4px;
+            border-color: rgba(79, 70, 229, 0.1) rgba(14, 165, 233, 0.1) rgba(16, 185, 129, 0.1) var(--primary);
+        }
+
+        /* Section divider wave */
+        .wave-divider {
+            position: relative;
+            margin-top: -1px;
+        }
+
+        .wave-divider svg {
+            display: block;
+            width: 100%;
+            height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="bg-glow"></div>
+    <div class="bg-glow-2"></div>
+
+    <nav id="navbar">
+        <div class="container nav-content">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                <span class="text-gradient brand">Voice2Justice</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#problem">The Gap</a></li>
+                <li><a href="#solution">Our Solution</a></li>
+                <li><a href="#workflow">How It Works</a></li>
+                <li><a href="#demo">Demo</a></li>
+                <li><a href="#impact">Impact</a></li>
+            </ul>
+            <a href="#demo" class="btn btn-primary">Try It Now</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="floating-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        <div class="container hero-content fade-up">
+            <div class="badge">Intelligent Governance Platform</div>
+            <h1>Bridging Citizen Voice to <span class="text-gradient">Governance Action</span><span
+                    class="typing-cursor"></span></h1>
+            <p>A smart complaint intelligence and routing platform that transforms unstructured civilian narratives into
+                actionable legal and civic workflows instantly.</p>
+            <div class="hero-cta">
+                <a href="#demo" class="btn btn-primary">See it in Action</a>
+                <a href="#problem" class="btn btn-outline">Understand the Problem</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem -->
+    <section id="problem">
+        <div class="container">
+            <h2 class="section-title fade-up">The Missing Bridge</h2>
+            <p class="section-subtitle fade-up">Citizens face a maze. Authorities face a mess. Complaints today fail to
+                convert into action because there is no intelligent system bridging the gap.</p>
+            <div class="bridge-visual fade-up">
+                <div class="bridge-node">
+                    <h3>Citizen Voice</h3>
+                    <p class="text-muted">Unstructured, Vague, Confused</p>
+                    <div style="margin-top:1rem;font-size:2rem;color:var(--text-muted)"><i
+                            class="fa-solid fa-users"></i></div>
+                </div>
+                <div class="bridge-gap">
+                    <span
+                        style="color:var(--accent-red);font-weight:bold;font-family:'Outfit';letter-spacing:2px">DELAYED
+                        JUSTICE</span>
+                    <div class="gap-line"></div>
+                    <span style="color:var(--text-muted);font-size:.8rem">Manual classification bottleneck</span>
+                </div>
+                <div class="bridge-node" style="border-color:rgba(255,255,255,.1)">
+                    <h3>Governance Action</h3>
+                    <p class="text-muted">Requires specific formats & routing</p>
+                    <div style="margin-top:1rem;font-size:2rem;color:var(--text-muted)"><i
+                            class="fa-solid fa-building-columns"></i></div>
+                </div>
+            </div>
+            <div class="problem-grid">
+                <div class="card fade-up">
+                    <div class="card-icon icon-red"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                    <h3>Citizen Struggles</h3>
+                    <p>Citizens lack legal or procedural knowledge, leading to fear and confusion.</p>
+                    <ul>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Unsure where to report</li>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Complex departmental maze</li>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Unstructured natural narratives</li>
+                    </ul>
+                </div>
+                <div class="card fade-up" style="transition-delay:.1s">
+                    <div class="card-icon icon-red"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <h3>Authority Strain</h3>
+                    <p>Officials waste hours interpreting complaints instead of resolving them.</p>
+                    <ul>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Manual drafting of FIRs</li>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Misrouted civic issues</li>
+                        <li><i class="fa-solid fa-xmark" style="color:#ef4444"></i> Administrative burden</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution -->
+    <section id="solution" style="background:var(--bg-darker);position:relative">
+        <div class="container">
+            <div class="badge fade-up">Our Solution</div>
+            <h2 class="section-title fade-up">Introducing <span class="text-gradient">Voice2Justice</span></h2>
+            <p class="section-subtitle fade-up">Instead of forcing citizens to understand systems, the system
+                understands the citizen.</p>
+            <div class="solution-grid">
+                <div class="card fade-up">
+                    <div class="card-icon icon-purple"><i class="fa-solid fa-file-signature"></i></div>
+                    <h3>Automated FIR Drafts</h3>
+                    <p>If the complaint is a crime, the AI extracts entities and maps IPC logic to generate a
+                        ready-to-sign draft.</p>
+                </div>
+                <div class="card fade-up" style="transition-delay:.1s">
+                    <div class="card-icon icon-blue"><i class="fa-solid fa-route"></i></div>
+                    <h3>Department Assignment</h3>
+                    <p>If it is a civic issue, the system identifies the exact municipal department and routes it
+                        correctly.</p>
+                </div>
+                <div class="card fade-up" style="transition-delay:.2s">
+                    <div class="card-icon icon-green"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Smart Governance Layer</h3>
+                    <p>Predicts resolution timelines, assigns severity priorities, and enables auto-escalation for SLA
+                        breaches.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pipeline -->
+    <section id="workflow">
+        <div class="container">
+            <h2 class="section-title fade-up">Agent-Based Intelligence Pipeline</h2>
+            <p class="section-subtitle fade-up">A sequence of specialized AI agents acts on the raw complaint.</p>
+            <div class="pipeline fade-up" id="pipeline-anim">
+                <div class="pipeline-step">
+                    <div class="step-icon"><i class="fa-regular fa-comment-dots"></i></div>
+                    <div class="step-title">Extractor</div>
+                    <div class="step-desc">Identifies entities, locations, intent.</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div class="step-title">Classifier</div>
+                    <div class="step-desc">Crime or Civic Issue?</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="step-title">Mapper</div>
+                    <div class="step-desc">Matches to laws or depts.</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon"><i class="fa-solid fa-network-wired"></i></div>
+                    <div class="step-title">Router</div>
+                    <div class="step-desc">Assigns priority & destination.</div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-icon"><i class="fa-solid fa-file-export"></i></div>
+                    <div class="step-title">Generator</div>
+                    <div class="step-desc">Creates PDF & dispatches.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo -->
+    <section class="demo-section" id="demo">
+        <div class="container">
+            <h2 class="section-title fade-up">Live Extraction Demo</h2>
+            <p class="section-subtitle fade-up">Experience how the platform transforms a natural narrative instantly.
+            </p>
+            <div class="demo-container fade-up">
+                <div class="demo-input-card">
+                    <div class="demo-header">
+                        <div class="mac-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span
+                            style="font-size:.8rem;font-family:monospace;color:var(--text-muted)">citizen-terminal</span>
+                    </div>
+                    <div class="demo-body">
+                        <label style="margin-bottom:.5rem;display:block;font-weight:500">Describe the incident
+                            naturally:</label>
+                        <div class="demo-suggestions">
+                            <div class="suggestion" id="ex-crime">Example: Chain Snatching</div>
+                            <div class="suggestion" id="ex-civic">Example: Water Pipe Burst</div>
+                        </div>
+                        <textarea id="demo-input" class="demo-textarea"
+                            placeholder="Type what happened here..."></textarea>
+                        <button id="process-btn" class="btn btn-primary" style="width:100%">Process Complaint with
+                            AI</button>
+                    </div>
+                </div>
+                <div class="demo-output-card">
+                    <div class="demo-header">
+                        <div class="mac-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <span
+                            style="font-size:.8rem;font-family:monospace;color:var(--text-muted)">system-intelligence</span>
+                    </div>
+                    <div class="demo-body">
+                        <div id="output-placeholder" class="output-placeholder">
+                            <i class="fa-solid fa-microchip"></i>
+                            <p>Awaiting input...</p>
+                        </div>
+                        <div id="processing-state" class="processing-state">
+                            <div class="spinner"></div>
+                            <p style="color:var(--primary-light);font-family:monospace">Agent pipeline running...</p>
+                            <div style="font-size:.75rem;color:var(--text-muted);margin-top:.5rem" id="processing-text">
+                                Extracting entities...</div>
+                        </div>
+                        <div id="output-result" class="output-result"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact -->
+    <section id="impact">
+        <div class="container">
+            <h2 class="section-title fade-up">Transforming Society</h2>
+            <p class="section-subtitle fade-up">Moving from reactive responses to predictive, data-driven governance.
+            </p>
+            <div class="impact-grid" style="margin-top:3rem">
+                <div class="card fade-up">
+                    <h3 style="color:var(--primary-light)">For Citizens</h3>
+                    <hr style="border-color:var(--border-light);margin:.5rem 0 1rem;opacity:.3">
+                    <ul style="margin-top:0">
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> No procedural knowledge needed</li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Inclusive for rural/elderly</li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Guaranteed routing to correct
+                            authority</li>
+                    </ul>
+                </div>
+                <div class="card fade-up" style="transition-delay:.1s">
+                    <h3 style="color:#60a5fa">For Authorities</h3>
+                    <hr style="border-color:var(--border-light);margin:.5rem 0 1rem;opacity:.3">
+                    <ul style="margin-top:0">
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Zero manual interpretation workload
+                        </li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Structured, legally usable FIR
+                            drafts</li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Automated priority triage</li>
+                    </ul>
+                </div>
+                <div class="card fade-up" style="transition-delay:.2s">
+                    <h3 style="color:#34d399">Systemic Value</h3>
+                    <hr style="border-color:var(--border-light);margin:.5rem 0 1rem;opacity:.3">
+                    <ul style="margin-top:0">
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Reduces resolution SLA times
+                            drastically</li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Restores public trust in governance
+                        </li>
+                        <li><i class="fa-solid fa-check" style="color:#34d399"></i> Enables geographic hotspot
+                            heatmapping</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="margin-top:6rem;text-align:center">
+                <h3 class="fade-up" style="font-size:2rem;margin-bottom:2rem">Tech Stack</h3>
+                <div class="fade-up"
+                    style="display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin-bottom:2rem;opacity:.8;font-size:1.5rem">
+                    <span style="display:flex;align-items:center;gap:.5rem"><i class="fa-brands fa-python"></i>
+                        Flask</span>
+                    <span style="display:flex;align-items:center;gap:.5rem"><i class="fa-solid fa-database"></i>
+                        SQLite3</span>
+                    <span style="display:flex;align-items:center;gap:.5rem"><i class="fa-solid fa-robot"></i>
+                        Multi-Agent Pipeline</span>
+                </div>
+                <h2 class="text-gradient fade-up" style="font-size:2.5rem;margin-top:3rem;font-family:'Outfit'">Bridging
+                    the gap between citizen voice and governance response.</h2>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="logo" style="justify-content:center">
+                    <div class="logo-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                    <span class="text-gradient brand">Voice2Justice</span>
+                </div>
+                <p style="margin-top:1rem;color:var(--text-muted)">A Citizen Complaint Intelligence Engine</p>
+            </div>
+            <p class="copyright">&copy; 2026 Voice2Justice Team. Built for the Hackathon.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Navbar scroll
+            const navbar = document.getElementById('navbar');
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.style.padding = '1rem 0';
+                    navbar.style.background = 'rgba(255,255,255,.95)';
+                    navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,.06)';
+                } else {
+                    navbar.style.padding = '1.5rem 0';
+                    navbar.style.background = 'var(--glass-bg)';
+                    navbar.style.boxShadow = 'none';
+                }
+            });
+
+            // Intersection Observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        if (entry.target.id === 'pipeline-anim') entry.target.classList.add('animated');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.fade-up, .pipeline').forEach(el => observer.observe(el));
+
+            // Demo
+            const demoInput = document.getElementById('demo-input');
+            const processBtn = document.getElementById('process-btn');
+            const outputPlaceholder = document.getElementById('output-placeholder');
+            const processingState = document.getElementById('processing-state');
+            const processingText = document.getElementById('processing-text');
+            const outputResult = document.getElementById('output-result');
+
+            document.getElementById('ex-crime').addEventListener('click', () => {
+                demoInput.value = "I was walking near MG Road market around 8 PM yesterday when two guys on a black Pulsar bike snatched my gold chain. I am very scared.";
+                outputPlaceholder.style.display = 'flex';
+                processingState.style.display = 'none';
+                outputResult.style.display = 'none';
+            });
+            document.getElementById('ex-civic').addEventListener('click', () => {
+                demoInput.value = "The main water supply pipe outside building 45 on 3rd Cross Street has burst. Clean water has been wasting for 3 hours.";
+                outputPlaceholder.style.display = 'flex';
+                processingState.style.display = 'none';
+                outputResult.style.display = 'none';
+            });
+
+            processBtn.addEventListener('click', async () => {
+                const text = demoInput.value.trim();
+                if (!text) { alert("Please describe an incident first."); return; }
+
+                outputPlaceholder.style.display = 'none';
+                outputResult.style.display = 'none';
+
+                const locRegex = /(street|road|cross|layout|nagar|colony|block|market|area|park|junction|circle|highway|avenue|sector|phase|st\.|rd\.)/i;
+                let gpsLocation = "";
+
+                if (!locRegex.test(text)) {
+                    alert("Location is missing! Please mention a specific location in your complaint (e.g., Street, Road, Area, Colony).");
+                    outputPlaceholder.style.display = 'flex';
+                    return; // Stop submission and wait for user to add location
+                }
+
+                processingState.style.display = 'flex';
+                processingText.innerText = "Connecting to Flask Agent API...";
+
+                try {
+                    const response = await fetch('/api/process', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: text, location: gpsLocation })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.message || "Server error");
+                    }
+
+                    const data = await response.json();
+                    const steps = data.steps || ["Processing..."];
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        if (i < steps.length) {
+                            processingText.innerText = steps[i];
+                            i++;
+                        } else {
+                            clearInterval(interval);
+                            processingState.style.display = 'none';
+                            outputResult.innerHTML = data.html;
+                            outputResult.style.display = 'flex';
+                        }
+                    }, 500);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    processingState.style.display = 'none';
+                    const errorMsg = error.message && error.message.includes('Location') ? error.message : "Connection Error. Ensure Flask is running: python app.py";
+                    outputResult.innerHTML = `<div style="color:#ef4444;padding:1rem"><i class="fa-solid fa-triangle-exclamation"></i> ${errorMsg}</div>`;
+                    outputResult.style.display = 'flex';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // Particle Background Animation
+        (function () {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            let particles = [];
+            const PARTICLE_COUNT = 60;
+            const COLORS = [
+                'rgba(79, 70, 229, 0.15)',  // indigo
+                'rgba(14, 165, 233, 0.12)', // sky blue
+                'rgba(99, 102, 241, 0.1)',  // light indigo
+                'rgba(16, 185, 129, 0.08)', // emerald
+            ];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 4 + 1;
+                    this.speedX = (Math.random() - 0.5) * 0.4;
+                    this.speedY = (Math.random() - 0.5) * 0.4;
+                    this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+                    this.opacity = Math.random() * 0.5 + 0.1;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.opacity;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+            }
+
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+
+            function connectParticles() {
+                for (let a = 0; a < particles.length; a++) {
+                    for (let b = a + 1; b < particles.length; b++) {
+                        const dx = particles[a].x - particles[b].x;
+                        const dy = particles[a].y - particles[b].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 120) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = 'rgba(79, 70, 229, 0.04)';
+                            ctx.lineWidth = 0.5;
+                            ctx.moveTo(particles[a].x, particles[a].y);
+                            ctx.lineTo(particles[b].x, particles[b].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                connectParticles();
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+    </script>
+
+    <script>
+        // Mouse Parallax on Hero
+        (function () {
+            const hero = document.querySelector('.hero');
+            const heroContent = document.querySelector('.hero-content');
+            const shapes = document.querySelectorAll('.shape');
+
+            hero.addEventListener('mousemove', (e) => {
+                const rect = hero.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+                heroContent.style.transform = `translateX(${x * 10}px) translateY(${y * 10}px)`;
+
+                shapes.forEach((shape, i) => {
+                    const speed = (i + 1) * 8;
+                    shape.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+                });
+            });
+
+            hero.addEventListener('mouseleave', () => {
+                heroContent.style.transform = 'translateX(0) translateY(0)';
+                shapes.forEach(shape => {
+                    shape.style.transform = 'translate(0, 0)';
+                });
+            });
+        })();
+
+        // 3D Card Tilt Follow Mouse
+        (function () {
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = (e.clientX - rect.left) / rect.width;
+                    const y = (e.clientY - rect.top) / rect.height;
+                    const rotateX = (0.5 - y) * 8;
+                    const rotateY = (x - 0.5) * 8;
+                    card.style.transform = `translateY(-10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+                });
+            });
+        })();
+
+        // Scroll Progress Bar
+        (function () {
+            const bar = document.createElement('div');
+            bar.style.cssText = 'position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#4f46e5,#0ea5e9,#10b981);z-index:9999;transition:width 0.1s linear;width:0;border-radius:0 2px 2px 0;';
+            document.body.appendChild(bar);
+
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const progress = (scrollTop / docHeight) * 100;
+                bar.style.width = progress + '%';
+            });
+        })();
+    </script>
+</body>
+
+</html>
