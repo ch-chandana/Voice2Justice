@@ -116,23 +116,21 @@ def process_complaint():
     text_lower = text.lower()
 
     # Location Extraction
-    loc_pattern = r'((?:[a-zA-Z0-9-,]+\s+){1,6}(?:street|road|nagar|area|layout|colony))'
+    loc_pattern = r'((?:[a-zA-Z0-9-,]+\s+){1,6}(?:street|road|nagar|area|layout|colony|market|cross))'
     loc_match = re.search(loc_pattern, text, re.IGNORECASE)
 
     if loc_match:
         final_location = loc_match.group(1).title()
-    else:
+    elif gps_location:
         final_location = gps_location
-
-    if not final_location:
-        return jsonify({"status": "error", "message": "Location required"}), 400
+    else:
+        final_location = "Location Not Specified"
 
     # Classification
     crime_score = sum(1 for kw in CRIME_KEYWORDS if kw in text_lower)
     civic_score = sum(1 for kw in CIVIC_KEYWORDS if kw in text_lower)
 
     if crime_score > civic_score:
-
         incident_type = "crime"
         category = "Criminal Offense"
         department = "Local Police Station"
@@ -141,11 +139,8 @@ def process_complaint():
         sections = "BNS Sec 378 Theft, Sec 354 Assault"
         submitted_to = "Station House Officer"
         email = "chandanachettipally@gmail.com"
-
         summary = f"Crime related complaint reported: {text[:100]}..."
-
     else:
-
         incident_type = "civic"
         category = "Civic Issue"
         department = "Municipal Corporation"
@@ -154,7 +149,6 @@ def process_complaint():
         sections = "Municipal Infrastructure Act"
         submitted_to = "Municipal Officer"
         email = "rpranitha909@gmail.com"
-
         summary = f"Civic infrastructure issue reported: {text[:100]}..."
 
     # Save to Database

@@ -1598,7 +1598,7 @@
                 outputResult.style.display = 'none';
 
                 const locRegex = /(street|road|cross|layout|nagar|colony|block|market|area|park|junction|circle|highway|avenue|sector|phase|st\.|rd\.)/i;
-                let gpsLocation = "";
+                let gpsLocation = text;
 
                 if (!locRegex.test(text)) {
                     alert("Location is missing! Please mention a specific location in your complaint (e.g., Street, Road, Area, Colony).");
