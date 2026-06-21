@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: voice2justice
+    env: python
+    region: oregon
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn app:app"
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: 3.12.x
+      - key: SECRET_KEY
+        generateValue: true
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false

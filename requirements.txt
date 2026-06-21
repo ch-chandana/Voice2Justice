@@ -1,0 +1,9 @@
+﻿flask
+python-dotenv
+markupsafe
+werkzeug
+reportlab
+qrcode[pil]
+Pillow
+Flask-Limiter
+gunicorn
