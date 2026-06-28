@@ -21,11 +21,22 @@ from logging.handlers import RotatingFileHandler
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 from datetime import timedelta
+import ssl
 
 from extensions import limiter
 
 # Load .env before any blueprint imports so os.environ is fully populated
 load_dotenv()
+
+# Bypass SSL verification for local development to fix OAuth requests error
+if os.environ.get('FLASK_ENV') != 'production':
+    ssl._create_default_https_context = ssl._create_unverified_context
+    import requests
+    old_request = requests.Session.request
+    def new_request(*args, **kwargs):
+        kwargs['verify'] = False
+        return old_request(*args, **kwargs)
+    requests.Session.request = new_request
 
 # ── Environment Validation ────────────────────────────────────────────────
 if os.environ.get('FLASK_ENV') == 'production':
@@ -65,6 +76,16 @@ app.permanent_session_lifetime = timedelta(minutes=30)
 # Initialize Rate Limiter
 limiter.init_app(app)
 
+from extensions import oauth
+oauth.init_app(app)
+oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={'scope': 'openid email profile'}
+)
+
 # ── Database Path ─────────────────────────────────────────────────────────
 # Also defined in config.py for blueprint use; kept here so init_db() works
 # without an extra import before blueprints are registered.
@@ -85,12 +106,14 @@ from routes.reports import reports_bp        # noqa: E402
 from routes.status import status_bp          # noqa: E402
 from routes.dashboard import dashboard_bp    # noqa: E402
 from routes.auth import auth_bp              # noqa: E402
+from routes.user_auth import user_auth_bp    # noqa: E402
 
 app.register_blueprint(complaints_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(status_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(auth_bp)
+app.register_blueprint(user_auth_bp)
 
 
 # ── Frontend ──────────────────────────────────────────────────────────────

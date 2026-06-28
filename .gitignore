@@ -1,41 +1,22 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Virtual Environment
-venv/
-ENV/
-
-# Flask & App specifics
+# Security
 .env
-logs/
-reports/
-*.db
-!test.db
-.flaskenv
 
-# IDEs and OS files
+# Database
+*.db
+*.sqlite3
+
+# Logs and Reports
+logs/
+reports/*.pdf
+!reports/.gitkeep
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+venv/
+env/
+
+# IDE
 .vscode/
-.idea/
-.DS_Store
-Thumbs.db

@@ -58,11 +58,61 @@ def init_db():
             c_num = f"VJ-{year}-{row['id']:04d}"
             c.execute("UPDATE complaints SET complaint_number = ? WHERE id = ?", (c_num, row['id']))
 
+        # Step 11: Add user and fraud detection fields to complaints
+        new_columns = [
+            "ALTER TABLE complaints ADD COLUMN user_id INTEGER",
+            "ALTER TABLE complaints ADD COLUMN verification_status TEXT DEFAULT 'Unverified'",
+            "ALTER TABLE complaints ADD COLUMN submitted_ip TEXT",
+            "ALTER TABLE complaints ADD COLUMN fraud_score REAL DEFAULT 0.0",
+            "ALTER TABLE complaints ADD COLUMN fraud_status TEXT DEFAULT 'Clean'",
+            "ALTER TABLE complaints ADD COLUMN review_status TEXT DEFAULT 'Pending'",
+            "ALTER TABLE complaints ADD COLUMN guest_name TEXT",
+            "ALTER TABLE complaints ADD COLUMN guest_email TEXT",
+            "ALTER TABLE complaints ADD COLUMN guest_phone TEXT",
+            "ALTER TABLE complaints ADD COLUMN user_type TEXT"
+        ]
+        for col_migration in new_columns:
+            try:
+                c.execute(col_migration)
+            except sqlite3.OperationalError:
+                pass  # Column already exists
+                
+        # Backfill old records as Legacy
+        c.execute("UPDATE complaints SET user_type = 'Legacy', verification_status = 'Legacy' WHERE user_type IS NULL")
+
         # Create Indexes
         c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_complaint_number ON complaints(complaint_number)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_status ON complaints(status)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_category ON complaints(category)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_created_at ON complaints(created_at)")
+        c.execute("CREATE INDEX IF NOT EXISTS idx_user_id ON complaints(user_id)")
+        
+        # User Table
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                full_name TEXT NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                phone TEXT,
+                password_hash TEXT NOT NULL,
+                auth_provider TEXT DEFAULT 'local',
+                google_id TEXT,
+                profile_picture TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # User Table Migrations (for existing data)
+        user_migrations = [
+            "ALTER TABLE users ADD COLUMN auth_provider TEXT DEFAULT 'local'",
+            "ALTER TABLE users ADD COLUMN google_id TEXT",
+            "ALTER TABLE users ADD COLUMN profile_picture TEXT"
+        ]
+        for migration in user_migrations:
+            try:
+                c.execute(migration)
+            except sqlite3.OperationalError:
+                pass  # Column already exists
         
         # Admin Table
         c.execute('''

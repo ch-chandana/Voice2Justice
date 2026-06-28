@@ -10,10 +10,12 @@ class ComplaintModel:
             c.execute('''
                 INSERT INTO complaints (
                     user_name, text, type, category, confidence_score,
-                    department, priority, sla, summary, sections, submitted_to, location
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    department, priority, sla, summary, sections, submitted_to, location,
+                    user_id, verification_status, submitted_ip, fraud_score, fraud_status,
+                    guest_name, guest_email, guest_phone, user_type
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
-                data.get('user_name', 'Anonymous'),
+                data.get('user_name'),
                 data['text'],
                 data['type'],
                 data['category'],
@@ -24,7 +26,16 @@ class ComplaintModel:
                 data['summary'],
                 data['sections'],
                 data['submitted_to'],
-                data['location']
+                data['location'],
+                data.get('user_id'),
+                data.get('verification_status', 'Unverified'),
+                data.get('submitted_ip'),
+                data.get('fraud_score', 0.0),
+                data.get('fraud_status', 'Clean'),
+                data.get('guest_name'),
+                data.get('guest_email'),
+                data.get('guest_phone'),
+                data.get('user_type')
             ))
             comp_id = c.lastrowid
             
@@ -56,6 +67,44 @@ class ComplaintModel:
             ''', (status, updated_at, complaint_id))
             conn.commit()
             return c.rowcount > 0
+
+    @staticmethod
+    def update_review_status(complaint_id: int, review_status: str) -> bool:
+        with get_db() as conn:
+            c = conn.cursor()
+            updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            c.execute('''
+                UPDATE complaints 
+                SET review_status = ?, updated_at = ?
+                WHERE id = ?
+            ''', (review_status, updated_at, complaint_id))
+            conn.commit()
+            return c.rowcount > 0
+
+    # ── Fraud Detection Helpers ──────────────────────────────────────────
+
+    @staticmethod
+    def count_recent_by_ip(ip: str, hours: int = 1) -> int:
+        if not ip: return 0
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute(f"SELECT COUNT(*) FROM complaints WHERE submitted_ip = ? AND created_at >= datetime('now', '-{hours} hour')", (ip,))
+            return c.fetchone()[0]
+
+    @staticmethod
+    def count_recent_by_user(user_id: int, hours: int = 1) -> int:
+        if not user_id: return 0
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute(f"SELECT COUNT(*) FROM complaints WHERE user_id = ? AND created_at >= datetime('now', '-{hours} hour')", (user_id,))
+            return c.fetchone()[0]
+
+    @staticmethod
+    def check_duplicate_text(text: str) -> bool:
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute("SELECT COUNT(*) FROM complaints WHERE text = ?", (text,))
+            return c.fetchone()[0] > 0
 
     @staticmethod
     def delete(complaint_id: int) -> bool:
@@ -147,9 +196,64 @@ class ComplaintModel:
         with get_db() as conn:
             c = conn.cursor()
             c.execute('''
-                SELECT id, complaint_number, user_name, category, status, created_at 
-                FROM complaints 
-                ORDER BY created_at DESC 
+                SELECT c.id, c.complaint_number, 
+                       COALESCE(u.full_name, c.guest_name, c.user_name, 'Anonymous') as display_name,
+                       COALESCE(u.email, c.guest_email, 'Unknown') as display_email,
+                       c.user_type, c.category, c.status, c.created_at,
+                       c.fraud_score, c.fraud_status, c.verification_status, c.review_status
+                FROM complaints c
+                LEFT JOIN users u ON c.user_id = u.id
+                ORDER BY c.created_at DESC 
                 LIMIT ?
             ''', (limit,))
+            return [dict(row) for row in c.fetchall()]
+
+    # ── Fraud & Verification Analytics ────────────────────────────────────
+
+    @staticmethod
+    def get_fraud_stats() -> dict:
+        """Returns fraud-related aggregate stats for the dashboard."""
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute('''
+                SELECT
+                    SUM(CASE WHEN fraud_status = 'Clean' THEN 1 ELSE 0 END) as clean_count,
+                    SUM(CASE WHEN fraud_status = 'Review Required' THEN 1 ELSE 0 END) as review_required_count,
+                    SUM(CASE WHEN fraud_status = 'Suspicious' THEN 1 ELSE 0 END) as suspicious_count,
+                    SUM(CASE WHEN verification_status = 'Verified' THEN 1 ELSE 0 END) as verified_count,
+                    SUM(CASE WHEN verification_status = 'Unverified' THEN 1 ELSE 0 END) as unverified_count,
+                    SUM(CASE WHEN review_status = 'Pending' THEN 1 ELSE 0 END) as pending_review_count,
+                    SUM(CASE WHEN review_status = 'Genuine' THEN 1 ELSE 0 END) as genuine_count,
+                    SUM(CASE WHEN review_status = 'Fake' THEN 1 ELSE 0 END) as fake_count,
+                    AVG(fraud_score) as avg_fraud_score
+                FROM complaints
+            ''')
+            row = c.fetchone()
+            return {
+                'clean': row['clean_count'] or 0,
+                'review_required': row['review_required_count'] or 0,
+                'suspicious': row['suspicious_count'] or 0,
+                'verified': row['verified_count'] or 0,
+                'unverified': row['unverified_count'] or 0,
+                'pending_review': row['pending_review_count'] or 0,
+                'genuine': row['genuine_count'] or 0,
+                'fake': row['fake_count'] or 0,
+                'avg_fraud_score': round(row['avg_fraud_score'] or 0.0, 3)
+            }
+
+    @staticmethod
+    def get_all_complaints_detailed() -> list[dict]:
+        """Returns all complaints with fraud/verification/review columns for admin table."""
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute('''
+                SELECT c.id, c.complaint_number, 
+                       COALESCE(u.full_name, c.guest_name, c.user_name, 'Anonymous') as display_name,
+                       COALESCE(u.email, c.guest_email, 'Unknown') as display_email,
+                       c.user_type, c.category, c.status, c.created_at,
+                       c.fraud_score, c.fraud_status, c.verification_status, c.review_status
+                FROM complaints c
+                LEFT JOIN users u ON c.user_id = u.id
+                ORDER BY c.created_at DESC
+            ''')
             return [dict(row) for row in c.fetchall()]

@@ -83,9 +83,69 @@ def process_complaint():
     # Build AI summary (delegated to classifier service)
     summary = build_summary(incident_type, category, safe_text[:100])
 
+    # ── Fraud Scoring ─────────────────────────────────────────────────────
+    # Calculate fraud_score (0.0 to 1.0) based on behavioral signals.
+    # All complaints are STORED regardless of score — never auto-rejected.
+    from flask import session as flask_session
+
+    submitted_ip = request.remote_addr
+    user_id = flask_session.get('user_id')
+    
+    guest_name = None
+    guest_email = None
+    guest_phone = None
+    user_type = 'Registered'
+
+    if user_id:
+        verification_status = 'Verified'
+    else:
+        user_type = 'Guest'
+        verification_status = 'Unverified'
+        guest_name = data.get('guest_name', '').strip()
+        guest_email = data.get('guest_email', '').strip()
+        guest_phone = data.get('guest_phone', '').strip()
+        
+        if not guest_name or not guest_email or not guest_phone:
+            return jsonify({
+                'status': 'error',
+                'message': 'Guest users must provide Full Name, Email, and Phone Number.'
+            }), 400
+
+    fraud_score = 0.0
+
+    # Signal 1: Excessive submissions from same IP in last hour (+0.4)
+    ip_count = ComplaintModel.count_recent_by_ip(submitted_ip, hours=1)
+    if ip_count >= 5:
+        fraud_score += 0.4
+
+    # Signal 2: Excessive submissions from same user in last hour (+0.3)
+    if user_id:
+        user_count = ComplaintModel.count_recent_by_user(user_id, hours=1)
+        if user_count >= 5:
+            fraud_score += 0.3
+
+    # Signal 3: Identical complaint text previously submitted (+0.5)
+    if ComplaintModel.check_duplicate_text(text):
+        fraud_score += 0.5
+
+    # Signal 4: Extremely low ML confidence score (+0.2)
+    if confidence < 0.3:
+        fraud_score += 0.2
+
+    # Cap at 1.0
+    fraud_score = min(fraud_score, 1.0)
+
+    # Determine fraud status (never reject — just flag)
+    if fraud_score >= 0.7:
+        fraud_status = 'Suspicious'
+    elif fraud_score >= 0.4:
+        fraud_status = 'Review Required'
+    else:
+        fraud_status = 'Clean'
+
     # 2. Save to SQLite via ComplaintModel
     comp_data = {
-        'user_name': data.get('user_name', 'Anonymous'),
+        'user_name': None,
         'text': text,
         'type': incident_type,
         'category': category,
@@ -96,14 +156,23 @@ def process_complaint():
         'summary': summary,
         'sections': sections,
         'submitted_to': submitted_to,
-        'location': final_location
+        'location': final_location,
+        'user_id': user_id,
+        'verification_status': verification_status,
+        'submitted_ip': submitted_ip,
+        'fraud_score': round(fraud_score, 2),
+        'fraud_status': fraud_status,
+        'guest_name': guest_name,
+        'guest_email': guest_email,
+        'guest_phone': guest_phone,
+        'user_type': user_type
     }
     complaint_id = ComplaintModel.create(comp_data)
     
     comp = ComplaintModel.get(complaint_id)
     complaint_number = comp['complaint_number']
     
-    logger.info(f"Complaint successfully processed: ID={complaint_id}, Category='{category}', Priority='{priority}'")
+    logger.info(f"Complaint successfully processed: ID={complaint_id}, Category='{category}', Priority='{priority}', FraudScore={fraud_score:.2f}, FraudStatus='{fraud_status}'")
 
     # 3. Build response card HTML
     pdf_btn_html = (

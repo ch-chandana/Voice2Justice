@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Registration | Voice2Justice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="page-register">
+    <!-- Global Loader -->
+    <div id="global-loader"><div class="loader-spinner"></div></div>
+
+
+<div class="container-500">
+    <div class="login-card">
+        <div class="login-header">
+            <i class="fa-solid fa-user-plus fa-3x mb-3"></i>
+            <h4 class="mb-0 fw-bold">Citizen Registration</h4>
+            <p class="text-white-50 mb-0 small">Create your Voice2Justice account</p>
+        </div>
+        <div class="login-body">
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" action="/user/register">
+                <div class="mb-3">
+                    <label for="full_name" class="form-label text-muted small fw-bold" style="font-size:0.75rem;">FULL NAME *</label>
+                    <input type="text" class="premium-input" id="full_name" name="full_name" required placeholder="Enter your full name">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label text-muted small fw-bold" style="font-size:0.75rem;">EMAIL ADDRESS *</label>
+                    <input type="email" class="premium-input" id="email" name="email" required placeholder="your@email.com">
+                </div>
+                <div class="mb-3">
+                    <label for="phone" class="form-label text-muted small fw-bold" style="font-size:0.75rem;">PHONE NUMBER</label>
+                    <input type="tel" class="premium-input" id="phone" name="phone" placeholder="Optional">
+                </div>
+                <div class="mb-4">
+                    <label for="password" class="form-label text-muted small fw-bold" style="font-size:0.75rem;">PASSWORD *</label>
+                    <input type="password" class="premium-input" id="password" name="password" required placeholder="Create a password" minlength="6">
+                </div>
+                <button type="submit" class="landing-btn-primary w-100" style="border:none;cursor:pointer;">
+                    Create Account <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </form>
+
+            <div style="display:flex;align-items:center;text-align:center;color:#9ca3af;margin:1.5rem 0;font-size:0.85rem;">
+                <div style="flex:1;height:1px;background:#e5e7eb;"></div>
+                <span style="padding:0 10px;">OR</span>
+                <div style="flex:1;height:1px;background:#e5e7eb;"></div>
+            </div>
+
+            <a href="/user/login/google" class="btn w-100 text-decoration-none" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:#fff;border:1px solid #d1d5db;border-radius:8px;padding:0.65rem;color:#374151;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,0.05);transition:background 0.2s;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571c.001-.001.002-.001.003-.002l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+                Continue with Google
+            </a>
+
+            <div class="text-center mt-4">
+                <small class="text-muted">Already have an account? <a href="/user/login" style="color:#000;font-weight:600;">Login here</a></small>
+            </div>
+            <div class="text-center mt-2">
+                <small><a href="/" class="text-muted text-decoration-none"><i class="fa-solid fa-arrow-left me-1"></i>Back to Home</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

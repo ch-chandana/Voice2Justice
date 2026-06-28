@@ -8,94 +8,75 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom Styles -->
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Inter', sans-serif;
-        }
-        .navbar-brand {
-            font-weight: 700;
-        }
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        .stat-icon {
-            font-size: 2.5rem;
-            opacity: 0.8;
-        }
-        .loading-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10;
-            border-radius: 12px;
-        }
-        .empty-state {
-            padding: 3rem;
-            text-align: center;
-            color: #6c757d;
-        }
-        .chart-container {
-            position: relative;
-            height: 300px;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-<body>
+<body class="page-dashboard">
+    <!-- Global Loader -->
+    <div id="global-loader"><div class="loader-spinner"></div></div>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="/"><i class="fa-solid fa-scale-balanced me-2"></i>Voice2Justice Admin</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+
+<!-- Toast Container for Notifications -->
+<div class="toast-container" id="toast-container"></div>
+
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm dashboard-nav mb-4" style="background:#1E293B;">
+    <div class="container-1600 container-fluid">
+        <a class="navbar-brand fw-bold text-white d-flex align-items-center gap-2" href="/dashboard">
+            <i class="fa-solid fa-scale-balanced text-primary"></i> Admin Dashboard
+        </a>
+        <button class="navbar-toggler border-0 shadow-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#dashNav" aria-controls="dashNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/dashboard"><i class="fa-solid fa-chart-line me-1"></i> Dashboard</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/"><i class="fa-solid fa-house me-1"></i> Public Site</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-danger" href="/logout"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</a>
-                </li>
-            </ul>
+        <div class="collapse navbar-collapse" id="dashNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+            <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <span class="text-light fw-medium"><i class="fa-solid fa-shield-halved text-success me-1"></i> Official Authority Node</span>
+                <a href="/admin/logout" class="btn btn-sm btn-outline-danger text-white border-white rounded-pill px-3"><i class="fa-solid fa-power-off me-1"></i>Logout</a>
+            </div>
         </div>
     </div>
 </nav>
 
-<div class="container mb-5">
+<div class="container-1600 mb-5 pt-5 mt-4">
     
-    <!-- Top Stats Row -->
-    <div class="row g-4 mb-4" id="stats-container">
-        <!-- Will be populated by JS -->
-        <div class="col-12 text-center my-4" id="stats-loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- TOP STATS ROW: Total / Open / Closed                            -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="row g-3 mb-3" id="stats-container">
+        <div class="row w-100 m-0" id="stats-loading">
+        <div class="col-md-4"><div class="skeleton-loader" style="height:90px;border-radius:12px;"></div></div>
+        <div class="col-md-4"><div class="skeleton-loader" style="height:90px;border-radius:12px;"></div></div>
+        <div class="col-md-4"><div class="skeleton-loader" style="height:90px;border-radius:12px;"></div></div>
+</div>
         </div>
     </div>
 
-    <!-- Charts Row 1: Monthly Trends and Status Distribution -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- FRAUD & VERIFICATION STATS ROW                                   -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="section-divider"><i class="fa-solid fa-shield-halved me-1"></i> Fraud Intelligence & Verification</div>
+    <div class="row g-3 mb-4" id="fraud-stats-container">
+        <div class="row w-100 m-0" id="fraud-stats-loading">
+        <div class="col-md-3"><div class="skeleton-loader" style="height:80px;border-radius:12px;"></div></div>
+        <div class="col-md-3"><div class="skeleton-loader" style="height:80px;border-radius:12px;"></div></div>
+        <div class="col-md-3"><div class="skeleton-loader" style="height:80px;border-radius:12px;"></div></div>
+        <div class="col-md-3"><div class="skeleton-loader" style="height:80px;border-radius:12px;"></div></div>
+</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- CHARTS ROW 1: Monthly Trends + Status Distribution               -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="card h-100 p-3 position-relative">
                 <div class="loading-overlay" id="trends-loading">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
                 </div>
-                <h5 class="card-title">Monthly Complaint Trends</h5>
+                <h5 class="card-title fw-bold">Monthly Complaint Trends</h5>
                 <div class="chart-container">
                     <canvas id="trendsChart"></canvas>
                 </div>
@@ -104,9 +85,9 @@
         <div class="col-lg-4">
             <div class="card h-100 p-3 position-relative">
                 <div class="loading-overlay" id="status-loading">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
                 </div>
-                <h5 class="card-title">Status Distribution</h5>
+                <h5 class="card-title fw-bold">Status Distribution</h5>
                 <div class="chart-container">
                     <canvas id="statusChart"></canvas>
                 </div>
@@ -114,43 +95,76 @@
         </div>
     </div>
 
-    <!-- Charts Row 2: Categories and Recent Table -->
-    <div class="row g-4">
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- CHARTS ROW 2: Categories + Fraud Distribution                    -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="row g-4 mb-4">
         <div class="col-lg-4">
             <div class="card h-100 p-3 position-relative">
                 <div class="loading-overlay" id="categories-loading">
-                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
                 </div>
-                <h5 class="card-title">Top 5 Categories</h5>
+                <h5 class="card-title fw-bold">Top 5 Categories</h5>
                 <div class="chart-container">
                     <canvas id="categoriesChart"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-lg-8">
+        <div class="col-lg-4">
             <div class="card h-100 p-3 position-relative">
-                <div class="loading-overlay" id="recent-loading">
-                    <div class="spinner-border text-primary" role="status"></div>
+                <div class="loading-overlay" id="fraud-chart-loading">
+                    <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
                 </div>
-                <h5 class="card-title">Recent Complaints</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Citizen</th>
-                                <th>Category</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                                <th>PDF</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recent-table-body">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
+                <h5 class="card-title fw-bold">Fraud Status Distribution</h5>
+                <div class="chart-container">
+                    <canvas id="fraudChart"></canvas>
                 </div>
             </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100 p-3 position-relative">
+                <div class="loading-overlay" id="review-chart-loading">
+                    <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
+                </div>
+                <h5 class="card-title fw-bold">Review Status Distribution</h5>
+                <div class="chart-container">
+                    <canvas id="reviewChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- RECENT COMPLAINTS TABLE WITH FRAUD & ADMIN REVIEW                -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div class="section-divider"><i class="fa-solid fa-table me-1"></i> Recent Complaints</div>
+    <div class="card p-3 position-relative">
+        <div class="loading-overlay" id="recent-loading">
+            <div class="skeleton-loader" style="width:100%;height:100%;border-radius:14px;"></div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Citizen</th>
+                        <th>Email</th>
+                        <th>User Type</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Fraud Score</th>
+                        <th>Fraud Status</th>
+                        <th>Verification</th>
+                        <th>Review Status</th>
+                        <th>Date</th>
+                        <th>Admin Action</th>
+                        <th>PDF</th>
+                    </tr>
+                </thead>
+                <tbody id="recent-table-body">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -162,5 +176,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Custom Dashboard JS -->
 <script src="/static/js/dashboard.js"></script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
+

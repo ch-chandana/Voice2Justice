@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Voice2Justice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="page-profile">
+    <!-- Global Loader -->
+    <div id="global-loader"><div class="loader-spinner"></div></div>
+
+
+<nav class="navbar navbar-expand-lg fixed-top shadow-sm profile-nav mb-4" style="background:#1E293B;">
+    <div class="container-1100 container-fluid">
+        <a class="navbar-brand fw-bold text-white d-flex align-items-center gap-2" href="/">
+            <i class="fa-solid fa-scale-balanced text-primary"></i> Voice2Justice
+        </a>
+        <button class="navbar-toggler border-0 shadow-none text-white" type="button" data-bs-toggle="collapse" data-bs-target="#profileNav" aria-controls="profileNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="profileNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0"></ul>
+            <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                <a href="/" class="btn btn-sm btn-outline-light rounded-pill px-3"><i class="fa-solid fa-house me-1"></i>Home</a>
+                <a href="/user/logout" class="btn btn-sm btn-outline-danger text-white border-white rounded-pill px-3"><i class="fa-solid fa-right-from-bracket me-1"></i>Logout</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container-1100 mb-5 pt-5 mt-5">
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Profile Card -->
+    <div class="profile-card mb-4 shadow-sm" style="border-radius:12px; overflow:hidden; border:none;">
+        <div class="profile-header d-flex align-items-center gap-4" style="padding: 2.5rem 3rem;">
+            <div class="avatar-circle" style="width:90px;height:90px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.5rem;font-weight:700;color:#2563eb;box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 3px solid rgba(255,255,255,0.2);">
+                {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture }}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                {% else %}
+                    {{ user.full_name[0] | upper if user else '?' }}
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0 text-white">{{ user.full_name }}</h4>
+                <p class="mb-0 small text-light mt-1 opacity-75"><i class="fa-solid fa-envelope me-1"></i>{{ user.email }}</p>
+                {% if user.phone %}
+                    <p class="mb-0 small text-light opacity-75"><i class="fa-solid fa-phone me-1"></i>{{ user.phone }}</p>
+                {% endif %}
+                <p class="mb-0 small mt-2" style="color:rgba(255,255,255,0.8);font-size:0.8rem;">
+                    <i class="fa-solid fa-calendar me-1"></i>Member since {{ user.created_at[:10] }}
+                    <span class="ms-3"><i class="fa-brands {% if user.auth_provider == 'google' %}fa-google{% else %}fa-lock{% endif %} me-1"></i> Login via: {{ 'Google' if user.auth_provider == 'google' else 'Email' }}</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Complaints History -->
+    <div class="card profile-card" style="border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-3" style="color:#111827;font-family:'Outfit';"><i class="fa-solid fa-file-lines me-2" style="color:#000;"></i>My Complaints</h5>
+            
+            {% if complaints | length == 0 %}
+                <div class="empty-state text-center py-5">
+                    <div style="font-size:3.5rem; color:#cbd5e1; margin-bottom:1rem;"><i class="fa-solid fa-folder-open"></i></div>
+                    <h5 class="fw-bold text-dark mb-2">No Complaints Found</h5>
+                    <p class="text-muted mb-4">You haven't submitted any complaints yet. When you do, they will appear here.</p>
+                    <a href="/" class="btn btn-primary rounded-pill px-4 py-2 fw-semibold shadow-sm"><i class="fa-solid fa-plus me-2"></i>File a Complaint</a>
+                </div>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Complaint #</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Fraud Status</th>
+                                <th>Review</th>
+                                <th>Date</th>
+                                <th>Report</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for comp in complaints %}
+                            <tr class="complaint-row">
+                                <td><span class="font-monospace text-muted small">{{ comp.complaint_number or '#' ~ comp.id }}</span></td>
+                                <td>{{ comp.category or 'N/A' }}</td>
+                                <td>
+                                    {% if comp.status in ['Resolved', 'Closed'] %}
+                                        <span class="badge badge-soft-success">{{ comp.status }}</span>
+                                    {% elif comp.status in ['Received', 'Under Review'] %}
+                                        <span class="badge badge-soft-warning">{{ comp.status }}</span>
+                                    {% elif comp.status in ['In Progress', 'Investigating'] %}
+                                        <span class="badge badge-soft-info">{{ comp.status }}</span>
+                                    {% elif comp.status == 'Rejected' %}
+                                        <span class="badge badge-soft-danger">{{ comp.status }}</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-secondary">{{ comp.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if comp.priority == 'High' %}
+                                        <span class="badge badge-soft-danger">{{ comp.priority }}</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-warning">{{ comp.priority }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if comp.fraud_status == 'Clean' %}
+                                        <span class="badge badge-soft-success">Clean</span>
+                                    {% elif comp.fraud_status == 'Review Required' %}
+                                        <span class="badge badge-soft-warning">Review Required</span>
+                                    {% elif comp.fraud_status == 'Suspicious' %}
+                                        <span class="badge badge-soft-danger">Suspicious</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-secondary">{{ comp.fraud_status or 'N/A' }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if comp.review_status == 'Genuine' %}
+                                        <span class="badge badge-soft-success"><i class="fa-solid fa-check me-1"></i>Genuine</span>
+                                    {% elif comp.review_status == 'Fake' %}
+                                        <span class="badge badge-soft-danger"><i class="fa-solid fa-xmark me-1"></i>Fake</span>
+                                    {% else %}
+                                        <span class="badge badge-soft-secondary">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted small">{{ comp.created_at[:10] if comp.created_at else 'N/A' }}</td>
+                                <td>
+                                    <a href="/report/{{ comp.id }}/pdf" target="_blank"
+                                       class="btn btn-sm" title="Download PDF"
+                                       style="font-size:.75rem;font-weight:600;padding:.25rem .5rem;border:1px solid #e5e7eb;color:#374151;border-radius:6px;transition:all 0.2s;">
+                                        <i class="fa-solid fa-file-pdf me-1 text-danger"></i>PDF
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
+
+
+
