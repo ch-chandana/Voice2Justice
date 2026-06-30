@@ -46,26 +46,32 @@ if os.environ.get('FLASK_ENV') == 'production':
         print("WARNING: Email credentials not fully configured. Email routing may fail.")
 
 # ── Logging Configuration ─────────────────────────────────────────────────
-os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs'), exist_ok=True)
+try:
+    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs'), exist_ok=True)
+except OSError:
+    pass  # Read-only filesystem on some cloud platforms; skip log dir creation
 
 log_formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
 
-# File handler (10 MB max size, keep 5 backups)
-file_handler = RotatingFileHandler(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'app.log'), 
-    maxBytes=10485760, 
-    backupCount=5
-)
-file_handler.setFormatter(log_formatter)
-file_handler.setLevel(logging.INFO)
-
-# Console handler
+# Console handler (always active — works on cloud platforms)
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setFormatter(log_formatter)
 console_handler.setLevel(logging.INFO)
 
+handlers = [console_handler]
+
+# File handler (10 MB max size, keep 5 backups) — only if logs/ dir is writable
+_log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs', 'app.log')
+try:
+    file_handler = RotatingFileHandler(_log_path, maxBytes=10485760, backupCount=5)
+    file_handler.setFormatter(log_formatter)
+    file_handler.setLevel(logging.INFO)
+    handlers.append(file_handler)
+except OSError:
+    pass  # logs/ not writable on cloud; console logging is sufficient
+
 # Setup root logger
-logging.basicConfig(level=logging.INFO, handlers=[file_handler, console_handler])
+logging.basicConfig(level=logging.INFO, handlers=handlers)
 logger = logging.getLogger(__name__)
 
 # ── App Instance ─────────────────────────────────────────────────────────
@@ -78,13 +84,19 @@ limiter.init_app(app)
 
 from extensions import oauth
 oauth.init_app(app)
-oauth.register(
-    name='google',
-    client_id=os.getenv('GOOGLE_CLIENT_ID'),
-    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'}
-)
+_google_client_id = os.getenv('GOOGLE_CLIENT_ID')
+_google_client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+if _google_client_id and _google_client_secret:
+    oauth.register(
+        name='google',
+        client_id=_google_client_id,
+        client_secret=_google_client_secret,
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'}
+    )
+    logger.info("Google OAuth registered successfully.")
+else:
+    logger.warning("GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not set — Google OAuth disabled.")
 
 # ── Database Path ─────────────────────────────────────────────────────────
 # Also defined in config.py for blueprint use; kept here so init_db() works
@@ -166,8 +178,12 @@ if __name__ == '__main__':
     # BUG FIX: debug mode is now controlled by FLASK_DEBUG env var
     # so it can never accidentally be True in production
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    # Use 0.0.0.0 and PORT env var for cloud/Render deployment;
+    # fallback to 127.0.0.1:5000 for local development.
+    host = '0.0.0.0' if os.environ.get('FLASK_ENV') == 'production' else '127.0.0.1'
+    port = int(os.environ.get('PORT', 5000))
     print('=' * 50)
     print('  Voice2Justice Flask Server')
-    print('  Open http://127.0.0.1:5000 in your browser')
+    print(f'  Listening on http://{host}:{port}')
     print('=' * 50)
-    app.run(debug=debug, host='127.0.0.1', port=5000)
+    app.run(debug=debug, host=host, port=port)
