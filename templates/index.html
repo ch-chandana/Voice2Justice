@@ -19,7 +19,7 @@
     <div id="global-loader"><div class="loader-spinner"></div></div>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top shadow-sm" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); transition: all 0.3s ease;">
+    <nav id="navbar" class="navbar navbar-expand-lg fixed-top shadow-sm" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); transition: all 0.3s ease;">
   <div class="container-fluid container-xl">
     <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="#" style="color: #111827;">
       <div class="logo-icon text-primary"><i class="fa-solid fa-scale-balanced"></i></div>
@@ -389,14 +389,16 @@
             // Navbar scroll
             const navbar = document.getElementById('navbar');
             window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    navbar.style.padding = '1rem 0';
-                    navbar.style.background = 'rgba(255,255,255,.95)';
-                    navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,.06)';
-                } else {
-                    navbar.style.padding = '1.5rem 0';
-                    navbar.style.background = 'var(--glass-bg)';
-                    navbar.style.boxShadow = 'none';
+                if (navbar) {
+                    if (window.scrollY > 50) {
+                        navbar.style.padding = '1rem 0';
+                        navbar.style.background = 'rgba(255,255,255,.95)';
+                        navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,.06)';
+                    } else {
+                        navbar.style.padding = '1.5rem 0';
+                        navbar.style.background = 'var(--glass-bg)';
+                        navbar.style.boxShadow = 'none';
+                    }
                 }
             });
 
@@ -521,7 +523,10 @@
                 } catch (error) {
                     console.error('Error:', error);
                     processingState.style.display = 'none';
-                    const errorMsg = error.message && error.message.includes('Location') ? error.message : "Connection Error. Ensure Flask is running: python app.py";
+                    // Show the real error message from server, not a misleading hardcoded one
+                    const errorMsg = (error.message && error.message !== 'Failed to fetch')
+                        ? error.message
+                        : "Connection error. Please check your internet connection and try again.";
                     outputResult.innerHTML = `<div style="color:#ef4444;padding:1rem"><i class="fa-solid fa-triangle-exclamation"></i> ${errorMsg}</div>`;
                     outputResult.style.display = 'flex';
                 }
@@ -645,7 +650,10 @@
                     trackerResult.style.display = 'block';
 
                 } catch (e) {
-                    trackerError.textContent = '❌ Connection error. Make sure Flask server is running.';
+                    const errorMsg = (e.message && e.message !== 'Failed to fetch') 
+                        ? e.message 
+                        : 'Connection error. Please check your internet connection.';
+                    trackerError.textContent = `❌ ${errorMsg}`;
                     trackerError.style.display = 'block';
                 }
 
