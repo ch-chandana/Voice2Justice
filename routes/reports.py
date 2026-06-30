@@ -19,9 +19,9 @@ from services.pdf_service import generate_complaint_pdf
 reports_bp = Blueprint('reports', __name__)
 
 
-@reports_bp.route('/report/<int:complaint_id>')
-def generate_report(complaint_id):
-    comp = ComplaintModel.get(complaint_id)
+@reports_bp.route('/report/<string:tracking_id>')
+def generate_report(tracking_id):
+    comp = ComplaintModel.get_by_tracking_id(tracking_id)
 
     if not comp:
         return 'Complaint not found', 404
@@ -189,10 +189,10 @@ def generate_report(complaint_id):
     return html
 
 
-@reports_bp.route('/report/<int:complaint_id>/pdf')
-def download_pdf(complaint_id):
+@reports_bp.route('/report/<string:tracking_id>/pdf')
+def download_pdf(tracking_id):
     """Generate (or serve cached) PDF report and return as a download."""
-    comp = ComplaintModel.get(complaint_id)
+    comp = ComplaintModel.get_by_tracking_id(tracking_id)
     if not comp:
         return 'Complaint not found', 404
 

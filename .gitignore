@@ -1,9 +1,13 @@
-# Security
+# Security & Environment
 .env
+.env.*
+!.env.example
 
 # Database
 *.db
 *.sqlite3
+*.db.bak
+test.db
 
 # Logs and Reports
 logs/
@@ -12,11 +16,20 @@ reports/*.pdf
 
 # Python caches
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
 .pytest_cache/
 venv/
 env/
+.Python
 
-# IDE
+# IDE & OS
 .vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak

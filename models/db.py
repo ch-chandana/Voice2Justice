@@ -69,7 +69,8 @@ def init_db():
             "ALTER TABLE complaints ADD COLUMN guest_name TEXT",
             "ALTER TABLE complaints ADD COLUMN guest_email TEXT",
             "ALTER TABLE complaints ADD COLUMN guest_phone TEXT",
-            "ALTER TABLE complaints ADD COLUMN user_type TEXT"
+            "ALTER TABLE complaints ADD COLUMN user_type TEXT",
+            "ALTER TABLE complaints ADD COLUMN tracking_id TEXT"
         ]
         for col_migration in new_columns:
             try:
@@ -82,6 +83,7 @@ def init_db():
 
         # Create Indexes
         c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_complaint_number ON complaints(complaint_number)")
+        c.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_tracking_id ON complaints(tracking_id)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_status ON complaints(status)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_category ON complaints(category)")
         c.execute("CREATE INDEX IF NOT EXISTS idx_created_at ON complaints(created_at)")

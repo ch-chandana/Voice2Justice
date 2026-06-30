@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 from datetime import datetime
 from models.db import get_db
 
@@ -12,8 +13,8 @@ class ComplaintModel:
                     user_name, text, type, category, confidence_score,
                     department, priority, sla, summary, sections, submitted_to, location,
                     user_id, verification_status, submitted_ip, fraud_score, fraud_status,
-                    guest_name, guest_email, guest_phone, user_type
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    guest_name, guest_email, guest_phone, user_type, tracking_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 data.get('user_name'),
                 data['text'],
@@ -35,7 +36,8 @@ class ComplaintModel:
                 data.get('guest_name'),
                 data.get('guest_email'),
                 data.get('guest_phone'),
-                data.get('user_type')
+                data.get('user_type'),
+                str(uuid.uuid4())
             ))
             comp_id = c.lastrowid
             
@@ -52,6 +54,14 @@ class ComplaintModel:
         with get_db() as conn:
             c = conn.cursor()
             c.execute("SELECT * FROM complaints WHERE id = ?", (complaint_id,))
+            row = c.fetchone()
+            return dict(row) if row else None
+
+    @staticmethod
+    def get_by_tracking_id(tracking_id: str) -> dict | None:
+        with get_db() as conn:
+            c = conn.cursor()
+            c.execute("SELECT * FROM complaints WHERE tracking_id = ?", (tracking_id,))
             row = c.fetchone()
             return dict(row) if row else None
 

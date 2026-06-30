@@ -182,13 +182,14 @@ def _process_complaint_inner():
     
     comp = ComplaintModel.get(complaint_id)
     complaint_number = comp['complaint_number']
+    tracking_id = comp['tracking_id']
     
-    logger.info(f"Complaint successfully processed: ID={complaint_id}, Category='{category}', Priority='{priority}', FraudScore={fraud_score:.2f}, FraudStatus='{fraud_status}'")
+    logger.info(f"Complaint successfully processed: ID={complaint_id}, TrackingID={tracking_id}, Category='{category}', Priority='{priority}', FraudScore={fraud_score:.2f}, FraudStatus='{fraud_status}'")
 
     # 3. Build response card HTML
     pdf_btn_html = (
         f'<button class="btn btn-primary" '
-        f'onclick="window.open(\'/report/{complaint_id}\', \'_blank\')" '
+        f'onclick="window.open(\'/report/{tracking_id}\', \'_blank\')" '
         f'style="width:100%;margin-top:1rem;font-size:0.85rem;padding:0.5rem;'
         f'display:flex;align-items:center;justify-content:center;gap:0.5rem;'
         f'border:none;cursor:pointer;">'
@@ -297,6 +298,7 @@ def _process_complaint_inner():
         'status': 'success',
         'type': incident_type,
         'complaint_id': complaint_id,
+        'tracking_id': tracking_id,
         'complaint_number': complaint_number,
         'steps': pipeline_steps,
         'html': result_html,
@@ -310,12 +312,12 @@ def get_complaints():
     return jsonify(rows)
 
 
-@complaints_bp.route('/api/track/<int:complaint_id>', methods=['GET'])
-def track_complaint(complaint_id):
-    comp = ComplaintModel.get(complaint_id)
+@complaints_bp.route('/api/track/<string:tracking_id>', methods=['GET'])
+def track_complaint(tracking_id):
+    comp = ComplaintModel.get_by_tracking_id(tracking_id)
     if not comp:
         return jsonify({
             'status': 'error',
-            'message': f'No complaint found with ID #{complaint_id}'
+            'message': f'No complaint found with Tracking ID {tracking_id}'
         }), 404
     return jsonify({'status': 'success', 'complaint': dict(comp)})

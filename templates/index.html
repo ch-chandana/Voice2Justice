@@ -507,13 +507,14 @@
                             processingState.style.display = 'none';
 
                             // Prominent Complaint ID banner
-                            const cid = data.complaint_id;
+                            const cid = data.tracking_id;
+                            const displayId = data.complaint_number;
                             const idBanner = `
                             <div style="background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:0.5rem;">
                                 <div>
-                                    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.8);font-weight:700;">📋 Your Complaint ID — Save This!</div>
-                                    <div style="font-size:2rem;font-weight:900;color:#fff;font-family:'Outfit',sans-serif;letter-spacing:-1px;">#${cid}</div>
-                                    <div style="font-size:.8rem;color:rgba(255,255,255,.75);">Use this ID to track your complaint status anytime.</div>
+                                    <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,.8);font-weight:700;">📋 Your Tracking ID — Save This!</div>
+                                    <div style="font-size:1.5rem;font-weight:900;color:#fff;font-family:'Outfit',sans-serif;letter-spacing:-1px;">${cid}</div>
+                                    <div style="font-size:.8rem;color:rgba(255,255,255,.75);">Use this ID to track your complaint status anytime. (Complaint #${displayId})</div>
                                 </div>
                                 <button onclick="document.getElementById('track-input').value='${cid}';document.getElementById('track').scrollIntoView({behavior:'smooth'});setTimeout(()=>document.getElementById('track-btn').click(),700);"
                                     style="background:#fff;color:#059669;border:none;padding:.6rem 1.2rem;border-radius:30px;font-weight:700;cursor:pointer;font-size:.9rem;white-space:nowrap;">
@@ -591,8 +592,8 @@
                 trackerError.style.display = 'none';
                 trackerResult.style.display = 'none';
 
-                if (!id || isNaN(id) || parseInt(id) < 1) {
-                    trackerError.textContent = '⚠️ Please enter a valid Complaint ID number.';
+                if (!id) {
+                    trackerError.textContent = '⚠️ Please enter a valid Tracking ID.';
                     trackerError.style.display = 'block';
                     return;
                 }
@@ -601,7 +602,7 @@
                 trackBtn.disabled = true;
 
                 try {
-                    const res = await fetch(`/api/track/${parseInt(id)}`);
+                    const res = await fetch(`/api/track/${id}`);
                     const data = await res.json();
 
                     if (!res.ok || data.status === 'error') {
@@ -620,9 +621,9 @@
 
                     trackerDetails.innerHTML = `
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                            <div>
+                            <div style="grid-column:1/-1;">
                                 <div style="font-size:.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;margin-bottom:.25rem;">Complaint ID</div>
-                                <div style="font-weight:700;font-size:1.1rem;color:#111827;">#${c.id}</div>
+                                <div style="font-weight:700;font-size:1.1rem;color:#111827;">#${c.complaint_number}</div>
                             </div>
                             <div>
                                 <div style="font-size:.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;margin-bottom:.25rem;">Current Status</div>
