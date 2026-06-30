@@ -170,6 +170,11 @@ Visit `http://127.0.0.1:5000` in your browser. Default admin credentials are `ad
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
-**Chandana C**
+**Chettipally Chandana**
 - GitHub: [@ch-chandana](https://github.com/ch-chandana)
-- LinkedIn: [Your LinkedIn Profile](https://www.linkedin.com/in/chettipally-chandana-415032353/)
+- LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/chettipally-chandana-415032353/)
+**Ravalkol Meghana**
+- GitHub: [@Meghana-Ravalkol](https://github.com/Meghana-Ravalkol )
+- LinkedIn: [LinkedIn Profile](https://www.linkedin.com/in/ravalkol-meghana-aaab6b311/)
+
+
