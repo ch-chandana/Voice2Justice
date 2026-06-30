@@ -10,11 +10,9 @@ An automated citizen grievance intelligence platform. Voice2Justice leverages Ma
 
 ## 📸 Screenshots
 
-*(Replace these placeholders with actual screenshots of your application)*
-
 | Citizen Portal | Admin Dashboard |
 |---|---|
-| ![Citizen Portal Placeholder](https://via.placeholder.com/400x250.png?text=Citizen+Portal) | ![Admin Dashboard Placeholder](https://via.placeholder.com/400x250.png?text=Admin+Dashboard) |
+| ![Citizen Portal Placeholder]("C:\Users\chand\OneDrive\Pictures\Screenshots\Screenshot 2026-06-30 144016.png") | ![Admin Dashboard Placeholder]("C:\Users\chand\OneDrive\Pictures\Screenshots\Screenshot 2026-06-30 144202.png") |
 | **PDF Report Example** | **Complaint Tracking** |
 | ![PDF Placeholder](https://via.placeholder.com/400x250.png?text=PDF+Report) | ![Tracking Placeholder](https://via.placeholder.com/400x250.png?text=Tracking+System) |
 
