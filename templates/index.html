@@ -484,8 +484,15 @@
                     });
 
                     if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.message || "Server error");
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.includes("application/json")) {
+                            const errData = await response.json();
+                            throw new Error(errData.message || "Server error");
+                        } else {
+                            const textResponse = await response.text();
+                            console.error("Non-JSON Server Error:", textResponse);
+                            throw new Error("Server returned an invalid response. The application might be deploying or offline.");
+                        }
                     }
 
                     const data = await response.json();
