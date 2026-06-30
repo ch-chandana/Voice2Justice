@@ -33,6 +33,17 @@ logger = logging.getLogger(__name__)
 @complaints_bp.route('/api/process', methods=['POST'])
 @limiter.limit("5 per minute", error_message="You are submitting complaints too quickly. Please wait a moment.")
 def process_complaint():
+    try:
+        return _process_complaint_inner()
+    except Exception as e:
+        logger.error("Unhandled error in /api/process: %s", e, exc_info=True)
+        return jsonify({
+            'status': 'error',
+            'message': 'An internal server error occurred. Please try again.'
+        }), 500
+
+
+def _process_complaint_inner():
     # BUG FIX: use silent=True so malformed JSON returns 400 instead of crashing
     data = request.get_json(silent=True)
     if not data:

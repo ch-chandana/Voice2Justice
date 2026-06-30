@@ -7,14 +7,25 @@ Reads SENDER_EMAIL and SENDER_APP_PASSWORD from environment variables
 (loaded via dotenv in config.py / app.py).
 
 Extracted from routes/complaints.py in Step 3.
+
+IMPORTANT: Email is sent in a background thread so it does NOT block
+the Gunicorn worker.  On Render free tier WEB_CONCURRENCY=1, a blocking
+SMTP call would freeze the entire server for 10–60 seconds.
 """
 import os
 import smtplib
+import threading
+import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+logger = logging.getLogger(__name__)
 
-def send_complaint_email(
+# ── SMTP connection timeout (seconds) ────────────────────────────────────
+_SMTP_TIMEOUT = 10  # fail fast instead of hanging for 60+ seconds
+
+
+def _send_email_sync(
     to_email: str,
     complaint_id: int,
     category: str,
@@ -24,12 +35,23 @@ def send_complaint_email(
     location: str,
 ) -> bool:
     """
-    Send a complaint routing notification via Gmail SMTP.
-
+    Internal sync email sender — called inside a background thread.
     Returns True on success, False on any error (logged to stdout).
     """
     sender_email = os.environ.get('SENDER_EMAIL', '')
     sender_password = os.environ.get('SENDER_APP_PASSWORD', '')
+
+    # Guard: skip entirely if credentials are not configured
+    if not sender_email or not sender_password:
+        logger.warning(
+            "[EMAIL SKIP] SENDER_EMAIL or SENDER_APP_PASSWORD not set — "
+            "email notification skipped for complaint #%s", complaint_id
+        )
+        return False
+
+    if not to_email:
+        logger.warning("[EMAIL SKIP] No target email for complaint #%s", complaint_id)
+        return False
 
     try:
         msg = MIMEMultipart()
@@ -59,13 +81,37 @@ def send_complaint_email(
         """
         msg.attach(MIMEText(body, 'html'))
 
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587, timeout=_SMTP_TIMEOUT)
         server.starttls()
         server.login(sender_email, sender_password)
         server.send_message(msg)
         server.quit()
-        print(f"[EMAIL SENT] To: {to_email} | Subject: {msg['Subject']}")
+        logger.info("[EMAIL SENT] To: %s | Subject: %s", to_email, msg['Subject'])
         return True
     except Exception as e:
-        print(f"[EMAIL ERROR] {e}")
+        logger.error("[EMAIL ERROR] Complaint #%s — %s", complaint_id, e)
         return False
+
+
+def send_complaint_email(
+    to_email: str,
+    complaint_id: int,
+    category: str,
+    text: str,
+    summary: str,
+    sections: str,
+    location: str,
+) -> None:
+    """
+    Fire-and-forget email sender.
+
+    Spawns a daemon thread so the HTTP response is returned immediately
+    to the client instead of blocking for the entire SMTP handshake.
+    """
+    t = threading.Thread(
+        target=_send_email_sync,
+        args=(to_email, complaint_id, category, text, summary, sections, location),
+        daemon=True,  # won't prevent process shutdown
+    )
+    t.start()
+    logger.info("[EMAIL QUEUED] Background thread started for complaint #%s", complaint_id)
