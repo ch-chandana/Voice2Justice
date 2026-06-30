@@ -1,6 +1,3 @@
-<div align="center">
-  <img src="https://via.placeholder.com/150x150.png?text=V2J+Logo" alt="Voice2Justice Logo" width="120" />
-  
   # Voice2Justice ⚖️
   
   **AI-Powered Citizen Grievance Intelligence & Governance Routing Platform**
